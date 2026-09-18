@@ -66,6 +66,37 @@ Run the miner as your normal user. MSR tuning and 1 GiB pages are disabled in
 this package; additional tuning could improve performance but is not required
 to use every hardware thread.
 
+## Saved configuration file
+
+`config.json` contains the 32-core / 64-thread preset. Before live mining, edit
+`pools[0].url` to your pool's host and port and `pools[0].user` to your public
+Monero payout address. These two fields currently contain placeholders; the
+file cannot mine successfully until they are replaced. Set `pools[0].tls` to
+match that endpoint (currently `true`). The pool password defaults to `x`.
+
+After installing XMRig and configuring huge pages as described above, run from
+this package folder on Ubuntu:
+
+```bash
+./bin/xmrig --config ./config.json
+```
+
+This saved configuration explicitly pins 64 RandomX workers to Linux CPU IDs
+0 through 63. It assumes all those CPUs are online and available to your process.
+Check `python3 mine.py inspect` on the target machine first. If the available
+CPU IDs differ, use the topology-aware `mine.py mine` command below instead.
+The Python launcher generates its own configuration and does not load this file.
+
+The preset enables NUMA and 2 MiB huge-page support, disables GPU mining and
+remote HTTP control, and retains the upstream 1% donation. No MSR changes or
+1 GiB page allocation are requested. It runs in the foreground; Ctrl+C stops it.
+Configuration JSON and worker selection were checked locally. Native XMRig
+startup, pool login, and accepted shares still require validation on Ubuntu
+with your pool and wallet filled in.
+
+Settings reference: [XMRig CPU configuration](https://xmrig.com/docs/miner/config/cpu)
+and [pool configuration](https://xmrig.com/docs/miner/config/pool).
+
 ## Mine
 
 Replace the example host and address with your pool's **TLS endpoint** and your
